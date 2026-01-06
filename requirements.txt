@@ -1,0 +1,10 @@
+crewai
+streamlit
+yfinance
+pandas-ta
+duckduckgo-search
+python-dotenv
+scipy
+plotly
+langchain-google-genai
+crewai-tools
