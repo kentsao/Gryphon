@@ -42,7 +42,7 @@ Gryphon is an autonomous Multi-Agent System (MAS) designed to act as your person
     # .env
     CREWAI_TELEMETRY_OPT_OUT=true
     GOOGLE_API_KEY=your_google_api_key_here
-    GOOGLE_MODEL_NAME=gemini-1.5-flash
+    GOOGLE_MODEL_NAME=gemini-2.5-flash-lite
     ```
     *Get a free Gemini API key from [Google AI Studio](https://aistudio.google.com/).*
 

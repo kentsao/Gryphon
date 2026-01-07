@@ -10,7 +10,7 @@ class TechnicalAnalysisTool(BaseTool):
         try:
             # Fetch data (requires more than just last 20 days for some indicators)
             stock = yf.Ticker(ticker)
-            df = stock.history(period="6mo")
+            df = stock.history(period="2y")
             
             if df.empty:
                 return f"No data found for {ticker}."

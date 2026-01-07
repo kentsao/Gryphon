@@ -1,9 +1,7 @@
-import os
-from dotenv import load_dotenv
-from crewai import Crew, Process
 from langchain_google_genai import ChatGoogleGenerativeAI
-# If using Groq/others via LiteLLM, we can just pass string model names to Agent, 
-# but putting an LLM object gives more control.
+from dotenv import load_dotenv
+import os
+from crewai import Crew, Process
 
 from .agents.factory import ScoutAgent, AnalystAgent, RiskAgent, StrategistAgent
 from .tasks import GryphonTasks

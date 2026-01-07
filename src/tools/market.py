@@ -14,9 +14,21 @@ class YFinanceNewsTool(BaseTool):
             
             formatted_news = []
             for item in news[:5]: # Top 5 news
-                title = item.get('title', 'No Title')
-                link = item.get('link', '#')
-                publisher = item.get('publisher', 'Unknown')
+                # Handle new yfinance structure where data is in 'content'
+                content = item.get('content', item) # Fallback to item if content missing
+                
+                title = content.get('title', 'No Title')
+                
+                # Link can be canonicalUrl or clickThroughUrl
+                link = content.get('canonicalUrl', content.get('clickThroughUrl', '#'))
+                
+                # Provider might be a dict
+                provider = content.get('provider', {})
+                if isinstance(provider, dict):
+                    publisher = provider.get('displayName', 'Unknown')
+                else:
+                    publisher = str(provider)
+                    
                 formatted_news.append(f"- {title} ({publisher}): {link}")
             
             return "\n".join(formatted_news)

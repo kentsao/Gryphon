@@ -1,3 +1,20 @@
+import os
+import signal
+import threading
+
+# Monkeypatch signal.signal to ignore errors when not in main thread
+_original_signal = signal.signal
+def _safe_signal(sig, handler):
+    try:
+        if threading.current_thread() is threading.main_thread():
+            return _original_signal(sig, handler)
+    except ValueError:
+        pass # Ignore "signal only works in main thread"
+signal.signal = _safe_signal
+
+# Must be set before importing crewai
+os.environ["CREWAI_TELEMETRY_OPT_OUT"] = "true"
+
 import streamlit as st
 import sys
 import io
@@ -6,51 +23,65 @@ from src.main_crew import GryphonEngine
 # Page Config
 st.set_page_config(page_title="Gryphon AI Info", page_icon="🦁", layout="wide")
 
+# Enable Tracing
+os.environ["CREWAI_TRACING_ENABLED"] = "true"
+
 st.title("🦁 Gryphon: AI Portfolio Manager")
 st.markdown("### The Autonomous Multi-Agent Investment Committee")
 
 # Sidebar
 with st.sidebar:
     st.header("Configuration")
-    ticker = st.text_input("Stock Ticker", value="AAPL").upper()
-    st.info("Ensure your .env file has valid API keys (OpenAI, etc).")
+    tickers_input = st.text_input("Stock Tickers (comma-separated)", value="AAPL, TSLA").upper()
+    st.info("Ensuring .env has valid API keys (Gemini, etc).")
     run_btn = st.button("Initialize Logic")
 
 # Main Area
 if run_btn:
-    if not ticker:
-        st.error("Please enter a ticker.")
+    if not tickers_input:
+        st.error("Please enter at least one ticker.")
     else:
-        st.write(f"**Analyzing {ticker}...** This may take a minute.")
+        # Parse tickers
+        tickers = [t.strip() for t in tickers_input.split(",") if t.strip()]
         
-        # Tabs for "War Room" vs "Verdict"
-        tab1, tab2 = st.tabs(["The Verdict", "The War Room (Logs)"])
+        # Tabs for "War Room" vs "Verdict" (Global or per ticker? Let's do per ticker expanders or just sequential)
+        # Better: One main area, iterating.
         
-        # Capture stdout for "War Room" logs
-        log_capture = io.StringIO()
-        original_stdout = sys.stdout
-        sys.stdout = log_capture
+        st.write(f"**Analyzing {len(tickers)} assets:** {', '.join(tickers)}")
         
-        try:
-            # Run the Engine
-            engine = GryphonEngine(ticker)
-            result = engine.run()
-            
-            # Reset stdout
-            sys.stdout = original_stdout
-            logs = log_capture.getvalue()
-            
-            # Display Results
-            with tab1:
-                st.success("Analysis Complete!")
-                st.markdown(result)
+        for ticker in tickers:
+            with st.status(f"Generative Analysis: {ticker}", expanded=True) as status:
+                st.write("Initializing Agents...")
                 
-            with tab2:
-                st.text_area("Agent logs", logs, height=600)
+                # Capture stdout
+                log_capture = io.StringIO()
+                original_stdout = sys.stdout
+                sys.stdout = log_capture
                 
-        except Exception as e:
-            sys.stdout = original_stdout # Ensure reset on error
-            st.error(f"An error occurred: {str(e)}")
+                try:
+                    engine = GryphonEngine(ticker)
+                    st.write("Engine Started...")
+                    result = engine.run()
+                    st.write("Analysis Complete.")
+                    status.update(label=f"Completed: {ticker}", state="complete", expanded=False)
+                    
+                except Exception as e:
+                    st.error(f"Error analyzing {ticker}: {str(e)}")
+                    status.update(label=f"Failed: {ticker}", state="error")
+                    result = f"Error: {str(e)}"
+                
+                finally:
+                    # Reset stdout
+                    sys.stdout = original_stdout
+                    logs = log_capture.getvalue()
+
+            # Display Results for this ticker
+            st.markdown(f"## 📊 Verdict: {ticker}")
+            st.markdown(result)
+            with st.expander(f"View Agent Logs ({ticker})"):
+                st.code(logs)
+                
+            st.divider()
 
 else:
-    st.info("Enter a ticker and click 'Initialize Logic' to start the agents.")
+    st.info("Enter tickers and click 'Initialize Logic' to start the agents.")
