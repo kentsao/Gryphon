@@ -53,3 +53,27 @@ class GryphonTasks:
             agent=agent,
             context=context_tasks
         )
+
+    def rebalance_task(self, agent, holdings, metrics, risk_profile):
+        return Task(
+            description=f"""
+            Analyze the current portfolio and suggest rebalancing actions.
+            
+            **Current Context:**
+            - **Holdings**: {holdings}
+            - **Metrics**: {metrics} (Beta, Sharpe, Volatility, Drawdown)
+            - **Client Risk Profile**: {risk_profile}
+            
+            **Objective:**
+            1. Evaluate if the portfolio aligns with the '{risk_profile}' profile.
+               - Conservative: Low Beta (<1.0), Low Drawdown.
+               - Moderate: Balanced.
+               - Aggressive: High Beta, High Growth Potential.
+            2. Identify specific imbalances (e.g., "Overexposed to Tech/High Beta").
+            3. Recommend concrete actions (Buy/Sell/Trim) for EXISTING assets.
+            4. **Suggest NEW ASSETS (Tickers/ETFs)** to add for diversification or risk reduction if needed. 
+               - E.g., "Consider adding 'TLT' (Bonds) or 'XLP' (Staples) to lower volatility."
+            """,
+            expected_output="A strategic rebalancing plan including specific Buy/Sell orders and New Asset recommendations.",
+            agent=agent
+        )

@@ -57,3 +57,16 @@ class StrategistAgent(BaseGryphonAgent):
             llm=self.llm,
             allow_delegation=False
         )
+
+class AdvisorAgent(BaseGryphonAgent):
+    def create(self) -> Agent:
+        return Agent(
+            role='The Advisor (Portfolio Manager)',
+            goal='Provide actionable rebalancing advice based on portfolio risk metrics and user risk tolerance.',
+            backstory="""You are a seasoned Wealth Manager. You look at portfolio-level metrics (Beta, Sharpe, Volatility) 
+            and the user's risk profile (Conservative, Moderate, Aggressive). You suggest concrete actions to optimize 
+            the portfolio, such as reducing exposure to high-beta stocks or diversifying. You speak directly to the client.""",
+            tools=[], # Pure analysis of provided metrics
+            verbose=True,
+            llm=self.llm
+        )

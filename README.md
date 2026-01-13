@@ -46,23 +46,52 @@ Gryphon is an autonomous Multi-Agent System (MAS) designed to act as your person
     ```
     *Get a free Gemini API key from [Google AI Studio](https://aistudio.google.com/).*
 
-## 🚦 Usage
+## 🚀 Usage
 
-### 1. The Dashboard (Recommended)
-Run the web interface to see the agents in action:
-```bash
-streamlit run app.py
-```
-- Enter a ticker (e.g., `NVDA`, `TSLA`, `AAPL`).
-- Click **Initialize Logic**.
-- Watch the **War Room** tab for live agent logs.
-- View the **Verdict** tab for the final report.
+1.  **Start the App**:
+    ```bash
+    streamlit run app.py
+    ```
+
+2.  **Authentication**:
+    -   You will be greeted by a Login screen.
+    -   Switch to the **Register** tab to create a secure account (managed by Supabase).
+
+3.  **Portfolio Manager** (New!):
+    -   Navigate to "Portfolio Manager" in the sidebar.
+    -   **Create Portfolio**: detailed collections of your assets.
+    -   **Add Holdings**: Input tickers and shares.
+    -   **Risk Engine**: Click "Calculate Risk Metrics" to see Beta, Sharpe Ratio, and Volatility key stats.
+    -   **AI Advisor**: Select your Risk Profile and ask the AI for a **Rebalancing Plan** (includes new asset suggestions!).
+
+4.  **Generation Engine** (Original):
+    -   Switch to "Generation Engine" to run deep-dive agents on specific stock tickers (News + Fundamentals + Technicals).
+
+5.  **Admin Console**:
+    -   Access system stats at the `admin_dashboard` page (via sidebar).
 
 ### 2. The CLI
 Quick scan from the terminal:
 ```bash
 python main.py TSLA
 ```
+
+## 📊 Quantitative Methodology
+
+Gryphon's **Risk Engine** calculates key metrics to assess portfolio health, using `SPY` (S&P 500) as the benchmark.
+
+1.  **Beta ($\beta$)**: Measures volatility relative to the market.
+    *   *Calculation*: `Covariance(Portfolio, Market) / Variance(Market)`
+    *   *Why*: $\beta > 1$ means high exposure (aggressive); $\beta < 1$ means lower volatility (defensive).
+2.  **Volatility ($\sigma$)**: Annualized standard deviation of daily returns.
+    *   *Calculation*: `StdDev(Daily Returns) * sqrt(252)`
+    *   *Why*: Represents the range of price fluctuations. High $\sigma$ = higher risk.
+3.  **Sharpe Ratio**: Risk-adjusted return.
+    *   *Calculation*: `(Portfolio Return - Risk Free Rate) / Volatility`
+    *   *Why*: Tells you if the returns are worth the risk. A ratio $> 1$ is generally considered good.
+4.  **Max Drawdown**: The largest peak-to-trough decline.
+    *   *Calculation*: `Min((Current Value - Peak Value) / Peak Value)`
+    *   *Why*: Stress-tests the portfolio's "worst-case scenario" based on historical data.
 
 ## ⚠️ Known Issues
 -   **"Signal only works in main thread"**: This is a known Issue with CrewAI telemetry in Streamlit. It is fixed by setting `CREWAI_TELEMETRY_OPT_OUT=true` in your `.env`.
